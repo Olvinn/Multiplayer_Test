@@ -1,5 +1,5 @@
+using System.Collections;
 using Data;
-using Inputs;
 using UnityEngine;
 
 namespace Cameras
@@ -7,21 +7,18 @@ namespace Cameras
     public class CameraController : MonoBehaviour
     {
         public float positionLerpSpeed = 10f;
-        public float horizontalSpeed = 1.5f, verticalSpeed = .75f;
+        public float horizontalSpeed = 1.5f,
+            verticalSpeed = .75f;
+        public AnimationCurve dashEffectZoom;
+        public float fieldOfView = 60;
         
         [SerializeField] private Camera camera;
-        [SerializeField] private InputController input;
         
         public Vector3 positionOffset, targetOffset;
 
         private Transform _target;
         private Vector3 _savedAngle;
         private Vector3 _endPosition;
-
-        private void Start()
-        {
-            input.rotation = Rotate;
-        }
 
         private void Update()
         {
@@ -36,9 +33,10 @@ namespace Cameras
 
         public void SetSettings(CameraSettings cameraSettings)
         {
-            positionLerpSpeed = cameraSettings.lerpSpeed;
-            horizontalSpeed = cameraSettings.horizontalSpeed;
-            verticalSpeed = cameraSettings.verticalSpeed;
+            positionLerpSpeed = cameraSettings.LerpSpeed;
+            horizontalSpeed = cameraSettings.HorizontalSpeed;
+            verticalSpeed = cameraSettings.VerticalSpeed;
+            fieldOfView = cameraSettings.FieldOfView;
         }
 
         public void SetTarget(Transform target)
@@ -51,6 +49,22 @@ namespace Cameras
             _savedAngle += new Vector3(-(delta.y * verticalSpeed) % 360, (delta.x * horizontalSpeed) % 360, 0);
 
             _endPosition = _target.transform.position + Quaternion.Euler(_savedAngle) * positionOffset;
+        }
+
+        public void DashEffect(float speed)
+        {
+            StartCoroutine(ZoomIn(speed));
+        }
+
+        IEnumerator ZoomIn(float speed)
+        {
+            float timer = 0;
+            while (timer < speed)
+            {
+                camera.fieldOfView = fieldOfView * dashEffectZoom.Evaluate(timer / speed);
+                timer += Time.deltaTime;
+                yield return null;
+            }
         }
     }
 }

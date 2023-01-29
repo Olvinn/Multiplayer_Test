@@ -13,3 +13,6 @@ MonoBehaviour:
   m_Name: PlayerSettings
   m_EditorClassIdentifier: 
   <moveSpeed>k__BackingField: 7
+  <dashDistance>k__BackingField: 6
+  <dashSpeed>k__BackingField: 0.5
+  <dashDelay>k__BackingField: 1

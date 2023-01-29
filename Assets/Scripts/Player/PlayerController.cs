@@ -1,53 +1,65 @@
+using System;
+using System.Collections;
 using Data;
-using Inputs;
 using UnityEngine;
 
 namespace Player
 {
     public class PlayerController : MonoBehaviour
     {
-        public PlayerModel model;
-        public PlayerView view;
+        public Action OnSuccessfulDash;
+        public float dashDistance, dashSpeed, dashDelay;
+        
         [SerializeField] private Transform playerCamera;
-        [SerializeField] private InputController input;
 
-        private bool isUpdatingModel;
+        PlayerModel _model;
+        PlayerView _view;
+        private bool _isUpdatingModel;
+        private bool _canDash;
         
         private void Start()
         {
-            if (input == null)
-                return;
-            
-            input.attack = Attack;
-            input.movement = Movement;
+            _canDash = true;
         }
 
         public void InjectModel(PlayerModel model)
         {
-            this.model = model;
+            _model = model;
             model.onPositionChanged += SetPosition;
         }
 
         public void SetSettings(PlayerSettings settings)
         {
-            view.moveSpeed = settings.moveSpeed;
+            _view.moveSpeed = settings.moveSpeed;
+
+            dashDelay = settings.dashDelay;
+            dashSpeed = settings.dashSpeed;
+            dashDistance = settings.dashDistance;
         }
 
-        public void Attack()
+        public void SetView(PlayerView view)
         {
-            // Debug.Log($"PlayerController: attack command received");
+            _view = view;
+        }
+
+        public void Dash()
+        {
+            if (!_canDash)
+                return;
             
             Vector3 forwardVector = playerCamera.forward;
             forwardVector.y = 0;
             forwardVector.Normalize();
             
-            view.Dash(forwardVector, 5, .1f);
+            _view.Dash(forwardVector, dashDistance, dashSpeed);
+
+            StartCoroutine(DashDelay());
+            
+            OnSuccessfulDash?.Invoke();
         }
 
         public void Movement(Vector2 direction)
         {
-            //Debug.Log($"PlayerController: move command received with {direction} direction");
-
             Vector3 movDir = new Vector3(direction.x, 0, direction.y);
 
             Vector3 forwardVector = playerCamera.forward;
@@ -56,25 +68,32 @@ namespace Player
             
             Quaternion ang = Quaternion.FromToRotation(Vector3.forward, forwardVector);
             
-            view.Move(ang * movDir);
+            _view.Move(ang * movDir);
             
-            SafelyUpdateModelPosition(view.transform.position);
+            SafelyUpdateModelPosition(_view.transform.position);
         }
 
         public void SetPosition(Vector3 position)
         {
-            if (isUpdatingModel)
+            if (_isUpdatingModel)
                 return;
 
-            view.transform.position = position;
+            _view.transform.position = position;
             SafelyUpdateModelPosition(position);
         }
         
         private void SafelyUpdateModelPosition(Vector3 position)
         {
-            isUpdatingModel = true;
-            model.position = position;
-            isUpdatingModel = false;
+            _isUpdatingModel = true;
+            _model.position = position;
+            _isUpdatingModel = false;
+        }
+
+        IEnumerator DashDelay()
+        {
+            _canDash = false;
+            yield return new WaitForSeconds(dashDelay);
+            _canDash = true;
         }
     }
 }
