@@ -13,7 +13,12 @@ namespace Game
         {
             playerController.model = new PlayerModel();
             playerController.SetSettings(GameContext.Instance.playerSettings);
+            
             cameraController.SetTarget(playerController.view.transform);
+            cameraController.SetSettings(GameContext.Instance.cameraSettings);
+
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 }

@@ -44,9 +44,7 @@ namespace Player
             
             view.Move(ang * movDir);
             
-            isUpdatingModel = true;
-            model.position = view.transform.position;
-            isUpdatingModel = false;
+            SafelyUpdateModelPosition(view.transform.position);
         }
 
         public void SetPosition(Vector3 position)
@@ -54,8 +52,14 @@ namespace Player
             if (isUpdatingModel)
                 return;
 
+            view.transform.position = position;
+            SafelyUpdateModelPosition(position);
+        }
+        
+        private void SafelyUpdateModelPosition(Vector3 position)
+        {
             isUpdatingModel = true;
-            model.position = view.transform.position;
+            model.position = position;
             isUpdatingModel = false;
         }
     }

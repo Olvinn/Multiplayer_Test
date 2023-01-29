@@ -423,9 +423,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6af6f42a03a47ba489809d0986f8566c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  positionLerpSpeed: 10
+  horizontalSpeed: 1.5
+  verticalSpeed: 0.75
   camera: {fileID: 963194227}
   input: {fileID: 8078778}
-  positionOffset: {x: 0, y: 0, z: 0}
+  positionOffset: {x: 1, y: 2, z: -4}
   targetOffset: {x: 1, y: 1, z: 0}
 --- !u!1 &653120605
 GameObject:
@@ -1285,6 +1288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <playerSettings>k__BackingField: {fileID: 11400000, guid: 4ff625794b3ef8744812847ed5342184, type: 2}
+  <cameraSettings>k__BackingField: {fileID: 11400000, guid: ed18672c28c90d74aa380305d058447c, type: 2}
 --- !u!1 &2133792165
 GameObject:
   m_ObjectHideFlags: 0
