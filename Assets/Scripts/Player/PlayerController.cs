@@ -15,8 +15,16 @@ namespace Player
         
         private void Start()
         {
+            if (input == null)
+                return;
+            
             input.attack = Attack;
             input.movement = Movement;
+        }
+
+        public void InjectModel(PlayerModel model)
+        {
+            this.model = model;
             model.onPositionChanged += SetPosition;
         }
 
@@ -28,6 +36,12 @@ namespace Player
         public void Attack()
         {
             // Debug.Log($"PlayerController: attack command received");
+            
+            Vector3 forwardVector = playerCamera.forward;
+            forwardVector.y = 0;
+            forwardVector.Normalize();
+            
+            view.Dash(forwardVector, 5, .1f);
         }
 
         public void Movement(Vector2 direction)

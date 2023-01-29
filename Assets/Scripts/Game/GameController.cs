@@ -11,11 +11,11 @@ namespace Game
 
         private void Start()
         {
-            playerController.model = new PlayerModel();
-            playerController.SetSettings(GameContext.Instance.playerSettings);
+            playerController.InjectModel(new PlayerModel());
+            playerController.SetSettings(GameContext.Instance.PlayerSettings);
             
             cameraController.SetTarget(playerController.view.transform);
-            cameraController.SetSettings(GameContext.Instance.cameraSettings);
+            cameraController.SetSettings(GameContext.Instance.CameraSettings);
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;

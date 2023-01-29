@@ -7,7 +7,8 @@ namespace Inputs
         private void Update()
         {
             Vector2 mov = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-            mov.Normalize();
+            if (mov.magnitude > 1)
+                mov.Normalize();
             movement?.Invoke(mov);
 
             Vector2 rot = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));

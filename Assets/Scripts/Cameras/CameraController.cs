@@ -48,8 +48,6 @@ namespace Cameras
 
         public void Rotate(Vector2 delta)
         {
-            Debug.Log(delta);
-
             _savedAngle += new Vector3(-(delta.y * verticalSpeed) % 360, (delta.x * horizontalSpeed) % 360, 0);
 
             _endPosition = _target.transform.position + Quaternion.Euler(_savedAngle) * positionOffset;

@@ -8,8 +8,8 @@ namespace Game
     {
         public static GameContext Instance { get; private set; }
 
-        [field: SerializeField] public PlayerSettings playerSettings { get; private set; }
-        [field: SerializeField] public CameraSettings cameraSettings { get; private set; }
+        [field: SerializeField] public PlayerSettings PlayerSettings { get; private set; }
+        [field: SerializeField] public CameraSettings CameraSettings { get; private set; }
         
         private void Awake()
         {
