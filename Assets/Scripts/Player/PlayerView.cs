@@ -15,9 +15,9 @@ namespace Player
                 characterController = GetComponent<CharacterController>();
         }
 
-        public void Move(Vector2 direction)
+        public void Move(Vector3 direction)
         {
-            var mov = new Vector3(direction.x, 0, direction.y) * moveSpeed * Time.deltaTime;
+            var mov = direction * (moveSpeed * Time.deltaTime);
             characterController.Move(mov);
         }
     }
