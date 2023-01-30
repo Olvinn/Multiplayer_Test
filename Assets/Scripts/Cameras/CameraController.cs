@@ -13,10 +13,10 @@ namespace Cameras
         public float fieldOfView = 60;
         
         [SerializeField] private Camera camera;
+        [SerializeField] private Transform target;
         
         public Vector3 positionOffset, targetOffset;
 
-        private Transform _target;
         private Vector3 _savedAngle;
         private Vector3 _endPosition;
 
@@ -28,7 +28,7 @@ namespace Cameras
         private void LateUpdate()
         {
             Vector3 offset = camera.transform.localToWorldMatrix * targetOffset;
-            camera.transform.LookAt(_target.position + offset);
+            camera.transform.LookAt(target.position + offset);
         }
 
         public void SetSettings(CameraSettings cameraSettings)
@@ -41,14 +41,14 @@ namespace Cameras
 
         public void SetTarget(Transform target)
         {
-            _target = target;
+            this.target = target;
         }
 
         public void Rotate(Vector2 delta)
         {
             _savedAngle += new Vector3(-(delta.y * verticalSpeed) % 360, (delta.x * horizontalSpeed) % 360, 0);
 
-            _endPosition = _target.transform.position + Quaternion.Euler(_savedAngle) * positionOffset;
+            _endPosition = target.transform.position + Quaternion.Euler(_savedAngle) * positionOffset;
         }
 
         public void DashEffect(float speed)
