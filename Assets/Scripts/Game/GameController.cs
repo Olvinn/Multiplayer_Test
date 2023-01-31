@@ -1,4 +1,6 @@
-using System;
+using System.Collections;
+using Cameras;
+using Mirror;
 using Player;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,35 +10,19 @@ namespace Game
     public class GameController : MonoBehaviour
     {
         public static GameController Instance { get; private set; }
-        // [SerializeField] private Transform actors;
         [SerializeField] private PlayerView playerPrefab;
-        
-        // [SerializeField] private PlayerController playerController;
-        // [SerializeField] private CameraController cameraController;
-        // [SerializeField] private InputController input;
-
-        private int _currentScene = -1;
 
         private void Awake()
         {
             if (Instance == null)
-            {
                 Instance = this;
-                transform.SetParent(null);
-                DontDestroyOnLoad(gameObject);
-            }
             else
                 Destroy(gameObject);
         }
 
         private void Start()
         {
-            // var view = Instantiate(playerPrefab, actors);
-            // playerController.SetView(view);
             //
-            // playerController.InjectModel(new PlayerModel());
-            // playerController.SetSettings(GameContext.Instance.PlayerSettings);
-            // playerController.OnSuccessfulDash = DashEffect;
             //
             // cameraController.SetTarget(view.transform);
             // cameraController.SetSettings(GameContext.Instance.CameraSettings);
@@ -49,40 +35,41 @@ namespace Game
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        public void LoadBase()
-        {
-            SceneManager.LoadSceneAsync(2);
-        }
-
         public void LoadMainMenu()
         {
-            if (_currentScene >= 0)
-                SceneManager.UnloadSceneAsync(_currentScene);
-            _currentScene = 1;
-            SceneManager.LoadSceneAsync(_currentScene, LoadSceneMode.Additive);
+            SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
             
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.Confined;
         }
 
-        void Move(Vector2 dir)
+        public void Host()
         {
-            // playerController.Movement(dir);
+            NetworkManager.singleton.StartHost();
         }
 
-        void Rotate(Vector2 delta)
+        public void RegisterPlayer(PlayerModel model)
         {
-            // cameraController.Rotate(delta);
+            StartCoroutine(SpawnPlayer(model));
         }
 
-        void Dash()
+        IEnumerator SpawnPlayer(PlayerModel model)
         {
-            // playerController.Dash();
-        }
+            yield return null;
+            
+            var temp = new GameObject("LocalPlayer");
+            var cont = temp.AddComponent<PlayerController>();
+            var view = Instantiate(playerPrefab);
+            
+            temp = new GameObject("PlayerCamera");
+            var cam = temp.AddComponent<CameraController>();
+            cam.camera = Camera.main;
+            cam.SetTarget(view.transform);
 
-        void DashEffect()
-        {
-            // cameraController.DashEffect(GameContext.Instance.PlayerSettings.dashSpeed);
+            cont.cameraController = cam;
+            cont.SetView(view);
+            cont.InjectModel(model);
+            cont.SetSettings(GameContext.Instance.PlayerSettings);
         }
     }
 }

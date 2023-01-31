@@ -1,16 +1,16 @@
-using System;
 using System.Collections;
+using Cameras;
 using Data;
+using Inputs;
 using UnityEngine;
 
 namespace Player
 {
     public class PlayerController : MonoBehaviour
     {
-        public Action OnSuccessfulDash;
         public float dashDistance, dashSpeed, dashDelay;
         
-        [SerializeField] private Transform playerCamera;
+        public CameraController cameraController;
 
         PlayerModel _model;
         PlayerView _view;
@@ -20,6 +20,17 @@ namespace Player
         private void Start()
         {
             _canDash = true;
+            
+            InputController.Instance.movement = Movement;
+            InputController.Instance.attack = Dash;
+            InputController.Instance.rotation = Rotate;
+        }
+
+        private void OnDisable()
+        {
+            InputController.Instance.movement = null;
+            InputController.Instance.attack = null;
+            InputController.Instance.rotation = null;
         }
 
         public void InjectModel(PlayerModel model)
@@ -47,22 +58,20 @@ namespace Player
             if (!_canDash)
                 return;
             
-            Vector3 forwardVector = playerCamera.forward;
+            Vector3 forwardVector = cameraController.transform.forward;
             forwardVector.y = 0;
             forwardVector.Normalize();
             
             _view.Dash(forwardVector, dashDistance, dashSpeed);
 
             StartCoroutine(DashDelay());
-            
-            OnSuccessfulDash?.Invoke();
         }
 
         public void Movement(Vector2 direction)
         {
             Vector3 movDir = new Vector3(direction.x, 0, direction.y);
 
-            Vector3 forwardVector = playerCamera.forward;
+            Vector3 forwardVector = cameraController.transform.forward;
             forwardVector.y = 0;
             forwardVector.Normalize();
             
@@ -73,6 +82,11 @@ namespace Player
             SafelyUpdateModelPosition(_view.transform.position);
         }
 
+        public void Rotate(Vector2 rotate)
+        {
+            cameraController.Rotate(rotate);
+        }
+        
         public void SetPosition(Vector3 position)
         {
             if (_isUpdatingModel)

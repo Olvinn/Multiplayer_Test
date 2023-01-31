@@ -12,7 +12,7 @@ namespace Cameras
         public AnimationCurve dashEffectZoom;
         public float fieldOfView = 60;
         
-        [SerializeField] private Camera camera;
+        public Camera camera;
         [SerializeField] private Transform target;
         
         public Vector3 positionOffset, targetOffset;
@@ -22,11 +22,17 @@ namespace Cameras
 
         private void Update()
         {
+            if (camera == null)
+                return;
+
             camera.transform.position = Vector3.Slerp(camera.transform.position, _endPosition, Time.deltaTime * positionLerpSpeed);
         }
 
         private void LateUpdate()
         {
+            if (camera == null)
+                return;
+
             Vector3 offset = camera.transform.localToWorldMatrix * targetOffset;
             camera.transform.LookAt(target.position + offset);
         }

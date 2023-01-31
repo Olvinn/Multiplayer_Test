@@ -1,4 +1,5 @@
 using Cameras;
+using Game;
 using UnityEngine;
 
 namespace Scenes
@@ -15,6 +16,11 @@ namespace Scenes
         void Update()
         {
             camera.Rotate(new Vector2(Time.deltaTime * 10, 0));
+        }
+
+        public void StartHost()
+        {
+            GameController.Instance.Host();
         }
     }
 }
