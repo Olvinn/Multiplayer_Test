@@ -10,6 +10,8 @@ namespace Game
         [field: SerializeField] public PlayerSettings PlayerSettings { get; private set; }
         [field: SerializeField] public CameraSettings CameraSettings { get; private set; }
         
+        public string name;
+        
         private void Awake()
         {
             if (Instance == null)

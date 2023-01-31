@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using Data;
 using Game;
@@ -9,7 +8,10 @@ namespace Player
 {
     public class PlayerController : NetworkBehaviour
     {
+        [SyncVar]
         public int points;
+        [SyncVar]
+        public string playerName;
         
         public Transform camera;
 
@@ -24,7 +26,6 @@ namespace Player
 
         private void Start()
         { 
-            GameController.Instance.RegisterPlayer(this);
             if (isLocalPlayer)
                 _color = Color.blue;
             else
@@ -34,6 +35,9 @@ namespace Player
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
+            if (!isLocalPlayer)
+                return;
+            
             switch (_state)
             {
                 case PlayerViewState.Dash:
@@ -43,6 +47,15 @@ namespace Player
                     break;
             }
         }
+
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            GameController.Instance.RegisterPlayer(this);
+            if (isLocalPlayer)
+                UpdateName(GameContext.Instance.name);
+        }
+
         public void SetSettings(PlayerSettings settings)
         {
             _settings = settings;
@@ -86,42 +99,33 @@ namespace Player
             characterController.Move(mov);
         }
 
+        [Command(requiresAuthority = false)]
         private void GetDashed(PlayerController player)
         {
             if (_invulnerable)
                 return;
-
-            CmdApplyDashedEffect();
-            CmdIncreasePoints(player);
-        }
-
-        [Command(requiresAuthority = false)]
-        private void CmdIncreasePoints(PlayerController player)
-        {
-            Debug.Log($"CmdIncreasePoints {player}");
-            IncreasePoints(player);
-        }
-
-        [Command(requiresAuthority = false)]
-        private void CmdApplyDashedEffect()
-        {
-            Debug.Log($"CmdApplyDashedEffect");
+            _invulnerable = true;
+            player.points++;
             ApplyDashedEffect();
         }
 
-        [ClientRpc]
-        private void IncreasePoints(PlayerController player)
+        [Command(requiresAuthority = false)]
+        private void UpdateName(string name)
         {
-            Debug.Log($"IncreasePoints {player}");
-            player.points++;
+            ApplyName(name);
         }
 
         [ClientRpc]
         private void ApplyDashedEffect()
         {
-            Debug.Log($"ApplyDashedEffect");
             StartCoroutine(Invulnerability());
             renderer.material.color = Color.black;
+        }
+
+        [ClientRpc]
+        private void ApplyName(string name)
+        {
+            playerName = name;
         }
 
         public void Dash(Vector3 direction, float distance, float time)
@@ -155,7 +159,6 @@ namespace Player
 
         IEnumerator Invulnerability()
         {
-            _invulnerable = true;
             yield return new WaitForSeconds(_settings.invulnarabilityDelay);
             renderer.material.color = _color;
             _invulnerable = false;
