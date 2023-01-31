@@ -16,3 +16,4 @@ MonoBehaviour:
   <dashDistance>k__BackingField: 6
   <dashSpeed>k__BackingField: 0.5
   <dashDelay>k__BackingField: 1
+  <invulnarabilityDelay>k__BackingField: 3

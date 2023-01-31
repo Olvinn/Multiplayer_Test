@@ -9,5 +9,6 @@ namespace Data
         [field: SerializeField] public float dashDistance { get; private set; }
         [field: SerializeField] public float dashSpeed { get; private set; }
         [field: SerializeField] public float dashDelay { get; private set; }
+        [field: SerializeField] public float invulnarabilityDelay { get; private set; }
     }
 }

@@ -120,8 +120,10 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
+  points: 0
   camera: {fileID: 0}
   characterController: {fileID: 7125742942480913043}
+  renderer: {fileID: 7125742942480913133}
 --- !u!114 &7435868876354760498
 MonoBehaviour:
   m_ObjectHideFlags: 0
