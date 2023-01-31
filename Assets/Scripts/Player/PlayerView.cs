@@ -39,6 +39,12 @@ namespace Player
             characterController.Move(mov);
         }
 
+        public void SimpleMove(Vector3 direction)
+        {
+            var mov = direction * (moveSpeed * Time.deltaTime);
+            characterController.SimpleMove(mov);
+        }
+
         public void Dash(Vector3 direction, float distance, float time)
         {
             State = PlayerViewState.Dash;
@@ -47,6 +53,11 @@ namespace Player
                 StopCoroutine(_dashCoroutine);
             
             _dashCoroutine = StartCoroutine(DashCoroutine(direction, distance, time));
+        }
+
+        public void SetPos(Vector3 pos)
+        {
+            transform.position = pos;
         }
 
         public void GetDashed(PlayerView view)

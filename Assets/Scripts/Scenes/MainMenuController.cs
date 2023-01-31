@@ -22,5 +22,10 @@ namespace Scenes
         {
             GameController.Instance.Host();
         }
+
+        public void StartClient()
+        {
+            GameController.Instance.Client();
+        }
     }
 }

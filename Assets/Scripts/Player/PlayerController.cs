@@ -1,7 +1,5 @@
 using System.Collections;
-using Cameras;
 using Data;
-using Inputs;
 using UnityEngine;
 
 namespace Player
@@ -10,38 +8,32 @@ namespace Player
     {
         public float dashDistance, dashSpeed, dashDelay;
         
-        public CameraController cameraController;
+        public Transform camera;
 
         PlayerModel _model;
-        PlayerView _view;
-        private bool _isUpdatingModel;
-        private bool _canDash;
-        
-        private void Start()
-        {
-            _canDash = true;
-            
-            InputController.Instance.movement = Movement;
-            InputController.Instance.attack = Dash;
-            InputController.Instance.rotation = Rotate;
-        }
+        [SerializeField] PlayerView view;
+        private bool _canDash = true;
+        private bool _isClient;
 
-        private void OnDisable()
+        private void Update()
         {
-            InputController.Instance.movement = null;
-            InputController.Instance.attack = null;
-            InputController.Instance.rotation = null;
+            if (_model != null && !_isClient)
+            {
+                view.Move(_model.velocity);
+            }
         }
 
         public void InjectModel(PlayerModel model)
         {
+            _isClient = model.isLocalPlayer;
             _model = model;
-            model.onPositionChanged += SetPosition;
+            _model.onPositionChanged = view.SetPos;
+            view.gameObject.SetActive(true);
         }
 
         public void SetSettings(PlayerSettings settings)
         {
-            _view.moveSpeed = settings.moveSpeed;
+            view.moveSpeed = settings.moveSpeed;
 
             dashDelay = settings.dashDelay;
             dashSpeed = settings.dashSpeed;
@@ -50,7 +42,7 @@ namespace Player
 
         public void SetView(PlayerView view)
         {
-            _view = view;
+            this.view = view;
         }
 
         public void Dash()
@@ -58,11 +50,11 @@ namespace Player
             if (!_canDash)
                 return;
             
-            Vector3 forwardVector = cameraController.transform.forward;
+            Vector3 forwardVector = camera.forward;
             forwardVector.y = 0;
             forwardVector.Normalize();
             
-            _view.Dash(forwardVector, dashDistance, dashSpeed);
+            view.Dash(forwardVector, dashDistance, dashSpeed);
 
             StartCoroutine(DashDelay());
         }
@@ -71,36 +63,26 @@ namespace Player
         {
             Vector3 movDir = new Vector3(direction.x, 0, direction.y);
 
-            Vector3 forwardVector = cameraController.transform.forward;
+            Vector3 forwardVector = camera.forward;
             forwardVector.y = 0;
             forwardVector.Normalize();
             
             Quaternion ang = Quaternion.FromToRotation(Vector3.forward, forwardVector);
-            
-            _view.Move(ang * movDir);
-            
-            SafelyUpdateModelPosition(_view.transform.position);
-        }
 
-        public void Rotate(Vector2 rotate)
-        {
-            cameraController.Rotate(rotate);
-        }
-        
-        public void SetPosition(Vector3 position)
-        {
-            if (_isUpdatingModel)
+            var res = ang * movDir;
+            
+            view.Move(res);
+            
+            if (_model == null)
                 return;
-
-            _view.transform.position = position;
-            SafelyUpdateModelPosition(position);
+            
+            _model.SetVelocity(res);
+            _model.SetPosition(view.transform.position);
         }
-        
-        private void SafelyUpdateModelPosition(Vector3 position)
+
+        public void SetPosition(Vector3 pos)
         {
-            _isUpdatingModel = true;
-            _model.position = position;
-            _isUpdatingModel = false;
+            view.SetPos(pos);
         }
 
         IEnumerator DashDelay()
