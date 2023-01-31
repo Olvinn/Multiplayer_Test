@@ -1,48 +1,42 @@
+using System;
 using System.Collections;
 using Data;
+using Game;
+using Mirror;
 using UnityEngine;
 
 namespace Player
 {
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : NetworkBehaviour
     {
-        public float dashDistance, dashSpeed, dashDelay;
-        
         public Transform camera;
 
-        PlayerModel _model;
-        [SerializeField] PlayerView view;
-        private bool _canDash = true;
-        private bool _isClient;
+        [SerializeField] private CharacterController characterController;
 
-        private void Update()
+        private PlayerViewState _state;
+        private PlayerSettings _settings;
+        private Coroutine _dashCoroutine;
+        private bool _canDash = true;
+
+        private void Start()
         {
-            if (_model != null && !_isClient)
+            GameController.Instance.RegisterPlayer(this);
+        }
+
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            switch (_state)
             {
-                view.Move(_model.velocity);
+                case PlayerViewState.Dash:
+                    var target = hit.collider.GetComponent<PlayerController>();
+                    // if (target != null)
+                    //     target.GetDashed(this);
+                    break;
             }
         }
-
-        public void InjectModel(PlayerModel model)
-        {
-            _isClient = model.isLocalPlayer;
-            _model = model;
-            _model.onPositionChanged = view.SetPos;
-            view.gameObject.SetActive(true);
-        }
-
         public void SetSettings(PlayerSettings settings)
         {
-            view.moveSpeed = settings.moveSpeed;
-
-            dashDelay = settings.dashDelay;
-            dashSpeed = settings.dashSpeed;
-            dashDistance = settings.dashDistance;
-        }
-
-        public void SetView(PlayerView view)
-        {
-            this.view = view;
+            _settings = settings;
         }
 
         public void Dash()
@@ -54,13 +48,16 @@ namespace Player
             forwardVector.y = 0;
             forwardVector.Normalize();
             
-            view.Dash(forwardVector, dashDistance, dashSpeed);
+            Dash(forwardVector, _settings.dashDistance, _settings.dashSpeed);
 
             StartCoroutine(DashDelay());
         }
 
         public void Movement(Vector2 direction)
         {
+            if (_state == PlayerViewState.Dash)
+                return;
+            
             Vector3 movDir = new Vector3(direction.x, 0, direction.y);
 
             Vector3 forwardVector = camera.forward;
@@ -71,25 +68,48 @@ namespace Player
 
             var res = ang * movDir;
             
-            view.Move(res);
-            
-            if (_model == null)
-                return;
-            
-            _model.SetVelocity(res);
-            _model.SetPosition(view.transform.position);
+            Move(res);
         }
 
-        public void SetPosition(Vector3 pos)
+        private void Move(Vector3 direction)
         {
-            view.SetPos(pos);
+            var mov = direction * (_settings.moveSpeed * Time.deltaTime);
+            characterController.Move(mov);
+        }
+
+        public void Dash(Vector3 direction, float distance, float time)
+        {
+            _state = PlayerViewState.Dash;
+            
+            if (_dashCoroutine != null)
+                StopCoroutine(_dashCoroutine);
+            
+            _dashCoroutine = StartCoroutine(DashCoroutine(direction, distance, time));
         }
 
         IEnumerator DashDelay()
         {
             _canDash = false;
-            yield return new WaitForSeconds(dashDelay);
+            yield return new WaitForSeconds(_settings.dashDelay);
             _canDash = true;
         }
+        
+        IEnumerator DashCoroutine(Vector3 direction, float distance, float time)
+        {
+            float timer = time;
+            while (timer > 0)
+            {
+                characterController.Move(direction * (distance / time * Time.deltaTime));
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+            _state = PlayerViewState.Idle;
+        }
+    }
+
+    public enum PlayerViewState
+    {
+        Idle,
+        Dash
     }
 }

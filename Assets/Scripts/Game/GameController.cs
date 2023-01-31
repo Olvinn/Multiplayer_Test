@@ -10,7 +10,7 @@ namespace Game
     {
         public static GameController Instance { get; private set; }
 
-        public Action<PlayerModel> onCreatePlayer;
+        public Action<PlayerController> onCreatePlayer;
 
         private void Awake()
         {
@@ -58,7 +58,7 @@ namespace Game
 #endif
         }
 
-        public void RegisterPlayer(PlayerModel model)
+        public void RegisterPlayer(PlayerController model)
         {
             onCreatePlayer?.Invoke(model);
         }
