@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Cameras;
@@ -6,6 +8,7 @@ using Inputs;
 using Player;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Scenes
 {
@@ -13,6 +16,7 @@ namespace Scenes
     {
         [SerializeField] private CameraController camera;
         [SerializeField] private TextMeshProUGUI scoreLabel;
+        [SerializeField] private TextMeshProUGUI winner;
 
         private List<PlayerController> _players;
 
@@ -42,9 +46,17 @@ namespace Scenes
             scoreLabel.text = _builder.ToString();
         }
 
+        private void ShowWinner(string winner)
+        {
+            this.winner.gameObject.SetActive(true);
+            this.winner.text = $"The winner is {winner}!";
+            StartCoroutine(RestartTimer(5,$"The winner is {winner}!"));
+        }
+
         public void CreatePlayer(PlayerController player)
         {
             player.SetSettings(GameContext.Instance.PlayerSettings);
+            player.onShowWinner = ShowWinner;
             
             if (player.isLocalPlayer)
             {
@@ -57,6 +69,24 @@ namespace Scenes
             }
             
             _players.Add(player);
+        }
+
+        private void OnDestroy()
+        {
+            InputController.Instance.attack = null;
+            InputController.Instance.movement = null;
+            InputController.Instance.rotation = null;
+        }
+
+        IEnumerator RestartTimer(float timer, string text)
+        {
+            while (timer > 0)
+            {
+                this.winner.text = $"{text}!\n{timer :F1}";
+                yield return null;
+                timer -= Time.deltaTime;
+            }
+            this.winner.gameObject.SetActive(false);
         }
     }
 }

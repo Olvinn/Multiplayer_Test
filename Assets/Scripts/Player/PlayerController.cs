@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Data;
 using Game;
@@ -6,8 +7,12 @@ using UnityEngine;
 
 namespace Player
 {
+    // Main and the only one class, managing network logic
+    // Should be split, but I don't sure I will
     public class PlayerController : NetworkBehaviour
     {
+        public Action<string> onShowWinner;
+        
         [SyncVar]
         public int points;
         [SyncVar]
@@ -23,7 +28,9 @@ namespace Player
         private Coroutine _dashCoroutine;
         private bool _canDash = true, _invulnerable = false;
         private Color _color;
-
+        
+        // Why don't use #regions? - I don't like them
+        // ========= Both client and server logic ========
         private void Start()
         { 
             if (isLocalPlayer)
@@ -31,21 +38,6 @@ namespace Player
             else
                 _color = Color.red;
             renderer.material.color = _color;
-        }
-
-        private void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-            if (!isLocalPlayer)
-                return;
-            
-            switch (_state)
-            {
-                case PlayerViewState.Dash:
-                    var target = hit.collider.GetComponent<PlayerController>();
-                    if (target != null)
-                        target.GetDashed(this);
-                    break;
-            }
         }
 
         public override void OnStartClient()
@@ -59,6 +51,25 @@ namespace Player
         public void SetSettings(PlayerSettings settings)
         {
             _settings = settings;
+        }
+        // =========================================================
+
+        // ================ Client only logic ======================
+        // Actually, these methods could be used on server, but due 
+        // to smallness of game, it manages by upper logic
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            if (!isLocalPlayer)
+                return;
+            
+            switch (_state)
+            {
+                case PlayerViewState.Dash:
+                    var target = hit.collider.GetComponent<PlayerController>();
+                    if (target != null)
+                        target.GetDashed(this);
+                    break;
+            }
         }
 
         public void Dash()
@@ -99,35 +110,6 @@ namespace Player
             characterController.Move(mov);
         }
 
-        [Command(requiresAuthority = false)]
-        private void GetDashed(PlayerController player)
-        {
-            if (_invulnerable)
-                return;
-            _invulnerable = true;
-            player.points++;
-            ApplyDashedEffect();
-        }
-
-        [Command(requiresAuthority = false)]
-        private void UpdateName(string name)
-        {
-            ApplyName(name);
-        }
-
-        [ClientRpc]
-        private void ApplyDashedEffect()
-        {
-            StartCoroutine(Invulnerability());
-            renderer.material.color = Color.black;
-        }
-
-        [ClientRpc]
-        private void ApplyName(string name)
-        {
-            playerName = name;
-        }
-
         public void Dash(Vector3 direction, float distance, float time)
         {
             _state = PlayerViewState.Dash;
@@ -163,6 +145,58 @@ namespace Player
             renderer.material.color = _color;
             _invulnerable = false;
         }
+        // ================================================
+
+        // ============ Command to server =================
+        [Command(requiresAuthority = false)]
+        private void GetDashed(PlayerController player)
+        {
+            if (_invulnerable)
+                return;
+            _invulnerable = true;
+            player.points++;
+            if (player.points == 3)
+            {
+                ShowResults(player.playerName);
+                StartCoroutine(RestartTimer(5));
+            }
+
+            ApplyDashedEffect();
+        }
+
+        [Command(requiresAuthority = false)]
+        private void UpdateName(string name)
+        {
+            ApplyName(name);
+        }
+        
+        IEnumerator RestartTimer(float timer)
+        {
+            yield return new WaitForSeconds(timer);
+            NetworkManager.singleton.ServerChangeScene(NetworkManager.singleton.onlineScene);
+        }
+        // ===============================================
+
+        // ============= Server responses ================
+        [ClientRpc]
+        private void ApplyDashedEffect()
+        {
+            StartCoroutine(Invulnerability());
+            renderer.material.color = Color.black;
+        }
+
+        [ClientRpc]
+        private void ApplyName(string name)
+        {
+            playerName = name;
+        }
+
+        [ClientRpc]
+        private void ShowResults(string winner)
+        {
+            onShowWinner?.Invoke(winner);
+        }
+        // ===============================================
     }
 
     public enum PlayerViewState
