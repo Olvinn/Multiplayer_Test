@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Player
 {
     // Main and the only one class, managing network logic
-    // Should be split, but I don't sure I will
+    // Should split, but I don't sure I will
     public class PlayerController : NetworkBehaviour
     {
         public Action<string> onShowWinner;
@@ -45,7 +45,7 @@ namespace Player
             base.OnStartClient();
             GameController.Instance.RegisterPlayer(this);
             if (isLocalPlayer)
-                UpdateName(GameContext.Instance.name);
+                UpdateName(GameContext.Instance.playerName);
         }
 
         public void SetSettings(PlayerSettings settings)

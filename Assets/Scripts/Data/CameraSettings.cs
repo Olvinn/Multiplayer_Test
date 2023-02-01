@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Data
 {
-    [CreateAssetMenu(menuName = "Game/Settings/CameraSettings")]
+    [CreateAssetMenu(menuName = "Game/Settings/Camera Settings")]
     public class CameraSettings : ScriptableObject
     { 
         [field: SerializeField] public float LerpSpeed { get; private set; } 

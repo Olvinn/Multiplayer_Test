@@ -1,5 +1,6 @@
 using System;
 using Mirror;
+using Mirror.Discovery;
 using Player;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,7 +11,10 @@ namespace Game
     {
         public static GameController Instance { get; private set; }
 
+        public NetworkDiscovery networkDiscovery;
+
         public Action<PlayerController> onCreatePlayer;
+        public Action<string> onServerFound;
 
         private void Awake()
         {
@@ -26,6 +30,9 @@ namespace Game
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
 #endif
+            // Can't configure working client and network discovery right now
+            // networkDiscovery.OnServerFound.AddListener(OnServerFound);
+            // networkDiscovery.StartDiscovery();
         }
 
         public void LoadMainMenu()
@@ -38,9 +45,11 @@ namespace Game
 #endif
         }
 
-        public void Host()
+        public void Host(string addr)
         {
-            NetworkManager.singleton.StartHost();
+            CustomNetworkManager.singleton.networkAddress = addr;
+            CustomNetworkManager.singleton.StartHost();
+            networkDiscovery.AdvertiseServer();
 
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
             Cursor.visible = false;
@@ -48,8 +57,9 @@ namespace Game
 #endif
         }
 
-        public void Client()
+        public void Client(string addr)
         {
+            NetworkManager.singleton.networkAddress = addr;
             NetworkManager.singleton.StartClient();
 
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
@@ -61,6 +71,17 @@ namespace Game
         public void RegisterPlayer(PlayerController model)
         {
             onCreatePlayer?.Invoke(model);
+        }
+
+        public void Quit()
+        {
+            Application.Quit();
+        }
+
+        void OnServerFound(ServerResponse response)
+        {
+            onServerFound?.Invoke(response.EndPoint.Address.ToString());
+            networkDiscovery.StopDiscovery();
         }
     }
 }

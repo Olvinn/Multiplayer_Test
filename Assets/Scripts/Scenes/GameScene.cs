@@ -1,14 +1,13 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Cameras;
 using Game;
 using Inputs;
+using Mirror;
 using Player;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Scenes
 {
@@ -17,6 +16,7 @@ namespace Scenes
         [SerializeField] private CameraController camera;
         [SerializeField] private TextMeshProUGUI scoreLabel;
         [SerializeField] private TextMeshProUGUI winner;
+        [SerializeField] private TextMeshProUGUI ip;
 
         private List<PlayerController> _players;
 
@@ -33,6 +33,8 @@ namespace Scenes
         private void Start()
         {
             camera.SetSettings(GameContext.Instance.CameraSettings);
+
+            ip.text = NetworkManager.singleton.networkAddress;
         }
 
         private void Update()

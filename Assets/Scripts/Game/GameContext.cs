@@ -9,8 +9,9 @@ namespace Game
 
         [field: SerializeField] public PlayerSettings PlayerSettings { get; private set; }
         [field: SerializeField] public CameraSettings CameraSettings { get; private set; }
+        [field: SerializeField] public GameSettings GameSettings { get; private set; }
         
-        public string name;
+        public string playerName;
         
         private void Awake()
         {
@@ -18,6 +19,11 @@ namespace Game
                 Instance = this;
             else
                 Destroy(gameObject);
+        }
+
+        private void Start()
+        {
+            playerName = GameSettings.PlayerNames[Random.Range(0, GameSettings.PlayerNames.Length)];
         }
     }
 }

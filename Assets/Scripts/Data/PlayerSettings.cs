@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Data
 {
-    [CreateAssetMenu(menuName = "Game/Settings/PlayerSettings")]
+    [CreateAssetMenu(menuName = "Game/Settings/Player Settings")]
     public class PlayerSettings : ScriptableObject
     {
         [field: SerializeField] public float moveSpeed { get; private set; }

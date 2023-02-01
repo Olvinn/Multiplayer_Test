@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -278,6 +278,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75ba1d7037f08de4fa49764296cd8563, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkDiscovery: {fileID: 1807342699}
 --- !u!1 &1745822339
 GameObject:
   m_ObjectHideFlags: 0
@@ -334,9 +335,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1807342694}
-  - component: {fileID: 1807342695}
-  - component: {fileID: 1807342697}
+  - component: {fileID: 1807342698}
   - component: {fileID: 1807342696}
+  - component: {fileID: 1807342699}
+  - component: {fileID: 1807342701}
+  - component: {fileID: 1807342702}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -359,34 +362,6 @@ Transform:
   m_Father: {fileID: 1179675607}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1807342695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1807342693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 0
-  runInBackground: 1
-  autoStartServerBuild: 1
-  autoConnectClientBuild: 0
-  sendRate: 30
-  offlineScene: Assets/Scenes/MainMenu.unity
-  onlineScene: Assets/Scenes/Game.unity
-  transport: {fileID: 1807342697}
-  networkAddress: localhost
-  maxConnections: 4
-  authenticator: {fileID: 1807342696}
-  playerPrefab: {fileID: 7125742942480913041, guid: d22758ae95f137849a1a00b49d823c0b, type: 3}
-  autoCreatePlayer: 1
-  playerSpawnMethod: 0
-  spawnPrefabs: []
-  timeInterpolationGui: 0
 --- !u!114 &1807342696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,7 +384,73 @@ MonoBehaviour:
   serverPassword: 
   username: 
   password: 
---- !u!114 &1807342697
+--- !u!114 &1807342698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1807342693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877d89eaa822f7541a23db403a3ec175, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dontDestroyOnLoad: 0
+  runInBackground: 1
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 0
+  sendRate: 30
+  offlineScene: Assets/Scenes/MainMenu.unity
+  onlineScene: Assets/Scenes/Game.unity
+  transport: {fileID: 1807342702}
+  networkAddress: localhost
+  maxConnections: 4
+  authenticator: {fileID: 1807342696}
+  playerPrefab: {fileID: 7125742942480913041, guid: d22758ae95f137849a1a00b49d823c0b, type: 3}
+  autoCreatePlayer: 1
+  playerSpawnMethod: 0
+  spawnPrefabs: []
+  timeInterpolationGui: 0
+--- !u!114 &1807342699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1807342693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c761308e733c51245b2e8bb4201f46dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  secretHandshake: 5372310044399971138
+  serverBroadcastListenPort: 7777
+  enableActiveDiscovery: 1
+  ActiveDiscoveryInterval: 2
+  BroadcastAddress: 
+  transport: {fileID: 1807342702}
+  OnServerFound:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1807342701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1807342693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 3136633685
+  _assetId: 0
+  serverOnly: 0
+  visible: 0
+  hasSpawned: 0
+--- !u!114 &1807342702
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -482,3 +523,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <PlayerSettings>k__BackingField: {fileID: 11400000, guid: 4ff625794b3ef8744812847ed5342184, type: 2}
   <CameraSettings>k__BackingField: {fileID: 11400000, guid: ed18672c28c90d74aa380305d058447c, type: 2}
+  <GameSettings>k__BackingField: {fileID: 11400000, guid: d50d2801d8f78734a834ac4369928fe4, type: 2}
+  playerName: 
